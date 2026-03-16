@@ -84,6 +84,21 @@
                   <div class="flex items-start">
                     <div class="flex items-center h-5">
                       <input
+                        v-model="formData.enableMermaid"
+                        id="enable-mermaid"
+                        type="checkbox"
+                        class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                      />
+                    </div>
+                    <div class="ml-3 text-sm">
+                      <label for="enable-mermaid" class="font-medium text-gray-700">{{ t('enable_mermaid') }}</label>
+                      <p class="text-gray-500 text-xs">{{ t('enable_mermaid_desc') }}</p>
+                    </div>
+                  </div>
+
+                  <div class="flex items-start">
+                    <div class="flex items-center h-5">
+                      <input
                         v-model="formData.ignoreImage"
                         id="ignore-image"
                         type="checkbox"
@@ -161,6 +176,7 @@ const formData = reactive({
   name: '',
   title: '',
   description: '',
+  enableMermaid: false,
   ignoreImage: false,
   ignoreFootnote: false,
   ignoreHtml: false

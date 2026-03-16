@@ -84,6 +84,14 @@ const translations = {
   theme_modern: {
     zh: '现代',
     en: 'Modern'
+  },
+  enable_mermaid: {
+    zh: '启用 Mermaid 图表',
+    en: 'Enable Mermaid Diagrams'
+  },
+  enable_mermaid_desc: {
+    zh: '将 mermaid 代码块转换为图片（需要后端服务）',
+    en: 'Convert mermaid code blocks to images (requires backend server)'
   }
 }
 

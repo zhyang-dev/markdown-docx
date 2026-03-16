@@ -1,0 +1,17 @@
+{
+  "name": "markdown-docx-server",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Markdown to DOCX conversion server with mermaid support",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "markdown-docx": "file:../",
+    "multer": "^1.4.5-lts.1"
+  }
+}

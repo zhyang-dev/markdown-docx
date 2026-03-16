@@ -10,6 +10,8 @@
     <div class="text-center py-2 bg-green-50 text-sm">
       <p>
         <span class="text-green-600 font-medium">🔒 {{ t('local_processing') }}</span>
+        <span v-if="apiAvailable" class="ml-2 text-blue-600">✓ API 服务可用</span>
+        <span v-else class="ml-2 text-gray-500">API 服务未连接</span>
       </p>
     </div>
 
@@ -41,15 +43,29 @@ import { useI18n } from './composables/useI18n'
 import markdownDocx, { Packer } from 'markdown-docx'
 import initMarkdown from './assets/templates/template.md?raw'
 
+// API 配置 - 可通过环境变量或运行时配置
+const API_BASE_URL = import.meta.env.VITE_API_URL || ''
+
 const { markdownContent, htmlContent, setMarkdown, clearMarkdown } = useMarkdown()
 const { getThemeConfig } = useTheme()
 const { t } = useI18n()
 
 const showExportModal = ref(false)
+const apiAvailable = ref(false)
 
-onMounted(() => {
+onMounted(async () => {
   // 初始化默认内容
   setMarkdown(initMarkdown)
+
+  // 检查 API 可用性
+  if (API_BASE_URL) {
+    try {
+      const res = await fetch(`${API_BASE_URL}/health`)
+      apiAvailable.value = res.ok
+    } catch {
+      apiAvailable.value = false
+    }
+  }
 })
 
 const handleUpload = (content) => {
@@ -75,6 +91,17 @@ const handleExport = async (options) => {
     theme: selectedTheme?.theme,
   }
 
+  // 如果启用 mermaid 且 API 可用，使用后端处理
+  if (options.enableMermaid && apiAvailable.value) {
+    await handleExportViaAPI(options, exportOptions)
+  } else {
+    // 本地处理
+    await handleExportLocal(exportOptions)
+  }
+}
+
+// 本地导出（不支持 mermaid）
+const handleExportLocal = async (exportOptions) => {
   try {
     const buffer = await markdownDocx(markdownContent.value, exportOptions)
     const blob = await Packer.toBlob(buffer)
@@ -90,6 +117,50 @@ const handleExport = async (options) => {
     URL.revokeObjectURL(url)
   } catch (error) {
     console.error('Export failed:', error)
+    alert('导出失败: ' + error.message)
+  }
+}
+
+// 通过 API 导出（支持 mermaid）
+const handleExportViaAPI = async (options, exportOptions) => {
+  try {
+    const requestOptions = {
+      ...exportOptions,
+      filename: formatFilename(exportOptions.name),
+      mermaid: {
+        enabled: true
+      }
+    }
+
+    const res = await fetch(`${API_BASE_URL}/api/convert`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        markdown: markdownContent.value,
+        options: requestOptions
+      })
+    })
+
+    if (!res.ok) {
+      const error = await res.json()
+      throw new Error(error.message || 'API request failed')
+    }
+
+    const blob = await res.blob()
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = formatFilename(exportOptions.name)
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+
+    URL.revokeObjectURL(url)
+  } catch (error) {
+    console.error('API Export failed:', error)
+    alert('API 导出失败: ' + error.message)
   }
 }
 
