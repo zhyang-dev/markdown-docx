@@ -142,6 +142,8 @@ The `MarkdownDocx` constructor and `markdownDocx` function accept an options obj
 | `ignoreHtml` | Boolean | `false` | When set to `true`, inline HTML will be ignored |
 | `gfm` | Boolean | `true` | Enable GitHub Flavored Markdown support |
 | `theme` | Object | Default theme | Custom theme configuration for colors and sizes |
+| `mermaid` | Object | `{enabled: false}` | Mermaid diagram processing configuration |
+| `math` | Object | `{engine: 'katex'}` | Math rendering configuration |
 
 Additional options from the [marked](https://marked.js.org/using_advanced) library are also supported.
 
@@ -165,6 +167,34 @@ const doc = await markdownDocx(markdown, {
     libreOfficeCompat: false // set true if LibreOffice rendering looks off
   }
 })
+```
+
+### Mermaid options
+
+```ts
+interface MermaidOptions {
+  enabled?: boolean      // Enable mermaid processing, default: false
+  outputDir?: string     // Output directory for images, default: 'images'
+  mmdcPath?: string      // Path to mmdc executable, default: 'mmdc'
+}
+```
+
+Example:
+
+```ts
+const doc = await markdownDocx(markdown, {
+  mermaid: {
+    enabled: true,
+    outputDir: './diagrams',
+    mmdcPath: 'mmdc'
+  }
+})
+```
+
+**Prerequisite**: Install [mermaid-cli](https://github.com/mermaid-js/mermaid-cli):
+
+```bash
+npm install -g @mermaid-js/mermaid-cli
 ```
 
 ### Theme options

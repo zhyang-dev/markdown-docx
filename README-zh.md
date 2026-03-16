@@ -140,8 +140,38 @@ async function convertWithOptions() {
 | `ignoreHtml` | 布尔值 | `false` | 是否忽略内联 HTML |
 | `gfm` | 布尔值 | `true` | 启用 GitHub 风格 Markdown |
 | `theme` | 对象 | 默认主题 | 自定义颜色和大小的主题配置 |
+| `mermaid` | 对象 | `{enabled: false}` | Mermaid 图表处理配置 |
+| `math` | 对象 | `{engine: 'katex'}` | 数学公式渲染配置 |
 
 同时支持 [marked](https://marked.js.org/using_advanced) 库的额外配置选项。
+
+### Mermaid 配置
+
+```ts
+interface MermaidOptions {
+  enabled?: boolean      // 启用 mermaid 处理，默认：false
+  outputDir?: string     // 图片输出目录，默认：'images'
+  mmdcPath?: string      // mmdc 可执行文件路径，默认：'mmdc'
+}
+```
+
+示例：
+
+```ts
+const doc = await markdownDocx(markdown, {
+  mermaid: {
+    enabled: true,
+    outputDir: './diagrams',
+    mmdcPath: 'mmdc'
+  }
+})
+```
+
+**前置条件**：安装 [mermaid-cli](https://github.com/mermaid-js/mermaid-cli)：
+
+```bash
+npm install -g @mermaid-js/mermaid-cli
+```
 
 ### 主题配置
 

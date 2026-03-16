@@ -34,6 +34,19 @@ export interface MarkdownDocxOptions extends MarkedOptions {
   }
 
   /**
+   * Mermaid diagram configuration
+   * Convert mermaid code blocks to images using mmdc (mermaid-cli)
+   */
+  mermaid?: {
+    /** Enable mermaid processing, default: false */
+    enabled?: boolean
+    /** Output directory for generated images, default: 'images' */
+    outputDir?: string
+    /** Path to mmdc executable, default: 'mmdc' */
+    mmdcPath?: string
+  }
+
+  /**
    * do not download image
    * @default false
    */
