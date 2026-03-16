@@ -217,6 +217,36 @@ markdown-docx -i input.md -o output.docx
 
 If the output file is not specified, it will use the input filename with a `.docx` extension.
 
+### Mermaid Diagram Support
+
+Automatically convert mermaid diagrams in markdown to images and embed them in docx:
+
+```bash
+# Enable mermaid support
+markdown-docx -i input.md -o output.docx --mermaid
+
+# Specify image output directory
+markdown-docx -i input.md -o output.docx --mermaid --mermaid-output ./diagrams
+
+# Specify mmdc path
+markdown-docx -i input.md -o output.docx --mermaid --mmdc-path /usr/local/bin/mmdc
+```
+
+**Prerequisite**: Install [mermaid-cli](https://github.com/mermaid-js/mermaid-cli):
+
+```bash
+npm install -g @mermaid-js/mermaid-cli
+```
+
+**Supported diagram types**:
+- Flowchart
+- Sequence diagram
+- Gantt chart
+- Class diagram
+- State diagram
+- Pie chart
+- ...and all other mermaid-supported diagram types
+
 ## Supported Markdown Features
 
 - Headings (H1-H6)

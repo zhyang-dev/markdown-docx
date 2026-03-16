@@ -192,6 +192,36 @@ markdown-docx -i input.md -o output.docx
 
 未指定输出文件时，默认使用输入文件名并添加 `.docx` 后缀。
 
+### Mermaid 图表支持
+
+自动将 markdown 中的 mermaid 图表转换为图片并嵌入 docx：
+
+```bash
+# 启用 mermaid 支持
+markdown-docx -i input.md -o output.docx --mermaid
+
+# 指定图片输出目录
+markdown-docx -i input.md -o output.docx --mermaid --mermaid-output ./diagrams
+
+# 指定 mmdc 路径
+markdown-docx -i input.md -o output.docx --mermaid --mmdc-path /usr/local/bin/mmdc
+```
+
+**前置条件**：安装 [mermaid-cli](https://github.com/mermaid-js/mermaid-cli)：
+
+```bash
+npm install -g @mermaid-js/mermaid-cli
+```
+
+**支持的图表类型**：
+- 流程图 (flowchart)
+- 序列图 (sequence diagram)
+- 甘特图 (gantt)
+- 类图 (class diagram)
+- 状态图 (state diagram)
+- 饼图 (pie chart)
+- ...所有 mermaid 支持的图表类型
+
 ## 支持的 Markdown 特性
 
 - 标题（H1-H6）
