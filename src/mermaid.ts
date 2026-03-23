@@ -48,7 +48,8 @@ export async function checkMmdcAvailable(mmdcPath: string = 'mmdc'): Promise<boo
 export async function renderMermaidToPNG(
   code: string,
   outputPath: string,
-  mmdcPath: string = 'mmdc'
+  mmdcPath: string = 'mmdc',
+  options: { scale?: number; width?: number } = {}
 ): Promise<void> {
   // 检查 mmdc 是否可用
   const available = await checkMmdcAvailable(mmdcPath)
@@ -72,8 +73,10 @@ export async function renderMermaidToPNG(
     await fs.mkdir(outputDir, { recursive: true })
 
     // 调用 mmdc 转换，添加超时处理
+    const scaleArg = options.scale && options.scale !== 1 ? ` -s ${options.scale}` : ''
+    const widthArg = options.width ? ` -w ${options.width}` : ''
     const { stderr } = await execAsync(
-      `${mmdcPath} -i ${tempFile} -o ${outputPath} -b transparent`,
+      `${mmdcPath} -i ${tempFile} -o ${outputPath} -b transparent${scaleArg}${widthArg}`,
       { timeout: 30000 } // 30秒超时
     )
 
@@ -144,6 +147,10 @@ export interface MermaidOptions {
   outputDir?: string
   /** mmdc 可执行文件路径，默认 'mmdc' */
   mmdcPath?: string
+  /** Puppeteer scale factor，提高图片清晰度，默认 1 */
+  scale?: number
+  /** 页面宽度（像素），默认 800 */
+  width?: number
 }
 
 /**
@@ -167,6 +174,7 @@ export async function processMermaid(
 
   const outputDir = options.outputDir || 'images'
   const mmdcPath = options.mmdcPath || 'mmdc'
+  const renderOptions = { scale: options.scale, width: options.width }
   const imagePaths: string[] = []
   let successCount = 0
   let failCount = 0
@@ -175,7 +183,7 @@ export async function processMermaid(
   for (let i = 0; i < blocks.length; i++) {
     const imagePath = path.join(outputDir, `mermaid-${i}.png`)
     try {
-      await renderMermaidToPNG(blocks[i], imagePath, mmdcPath)
+      await renderMermaidToPNG(blocks[i], imagePath, mmdcPath, renderOptions)
       imagePaths.push(imagePath)
       successCount++
       console.log(`[Mermaid] ✓ Generated: ${imagePath}`)

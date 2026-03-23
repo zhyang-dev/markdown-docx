@@ -59,7 +59,9 @@ app.post('/api/convert', upload.single('file'), async (req, res) => {
       markdown = await processMermaid(markdown, {
         enabled: true,
         outputDir: options.mermaid.outputDir || tempDir,
-        mmdcPath: options.mermaid.mmdcPath || 'mmdc'
+        mmdcPath: options.mermaid.mmdcPath || 'mmdc',
+        scale: options.mermaid.scale,
+        width: options.mermaid.width
       })
 
       // 清理临时图片目录（可选，这里保留供 docx 引用）
@@ -117,7 +119,9 @@ app.post('/api/convert-batch', upload.array('files', 20), async (req, res) => {
           markdown = await processMermaid(markdown, {
             enabled: true,
             outputDir: tempDir,
-            mmdcPath: options.mermaid.mmdcPath || 'mmdc'
+            mmdcPath: options.mermaid.mmdcPath || 'mmdc',
+            scale: options.mermaid.scale,
+            width: options.mermaid.width
           })
         }
 

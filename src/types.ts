@@ -44,6 +44,10 @@ export interface MarkdownDocxOptions extends MarkedOptions {
     outputDir?: string
     /** Path to mmdc executable, default: 'mmdc' */
     mmdcPath?: string
+    /** Puppeteer scale factor for higher resolution, default: 1 */
+    scale?: number
+    /** Page width in pixels, default: 800 */
+    width?: number
   }
 
   /**

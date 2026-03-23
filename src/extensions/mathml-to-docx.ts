@@ -27,6 +27,46 @@ class MathMatrix extends XmlComponent {
   }
 }
 
+// OMML Accent helper - for \dot, \vec, \hat, etc.
+// OMML structure: <m:acc><m:accPr><m:chr m:val="˙"/></m:accPr><m:e>base</m:e></m:acc>
+
+// m:chr element with m:val attribute
+class MathAccentChar extends XmlComponent {
+  constructor(accentChar: string) {
+    super('m:chr')
+    this.root.push({
+      _attr: { 'm:val': accentChar }
+    } as any)
+  }
+}
+
+// m:accPr element containing m:chr
+class MathAccentProperties extends XmlComponent {
+  constructor(accentChar: string) {
+    super('m:accPr')
+    this.root.push(new MathAccentChar(accentChar))
+  }
+}
+
+// m:e (element) wrapper for accent base
+class MathAccentElement extends XmlComponent {
+  constructor(children: MathComponent[]) {
+    super('m:e')
+    for (const child of children) {
+      this.root.push(child as any)
+    }
+  }
+}
+
+// m:acc (accent) element
+class MathAccent extends XmlComponent {
+  constructor(accentChar: string, children: MathComponent[]) {
+    super('m:acc')
+    this.root.push(new MathAccentProperties(accentChar))
+    this.root.push(new MathAccentElement(children))
+  }
+}
+
 // Convert KaTeX MathML string to docx Math children
 // Minimal mapper covering core elements; can be expanded over time.
 export function mathmlToDocxChildren(mathml: string, opts?: { libreOfficeCompat?: boolean }): MathComponent[] {
@@ -169,8 +209,27 @@ function walkNode(node: any): MathComponent[] {
     case 'munderover':
     case 'munder':
     case 'mover': {
-      // Already handled in walkChildren for lookahead/base capture; as a node, render its operator + limits plainly
+      // mover/munder can represent:
+      // 1. Limits on operators (sum, integral) - handled earlier in walkChildren
+      // 2. Accents like \dot, \vec, \hat (mover with accent="true")
+      // 3. Under/over braces, etc.
       const m = childrenOf(node)
+
+      // Check if this is an accent (like \dot{Q})
+      const attrs = node[':@'] || {}
+      const isAccent = tag === 'mover' && attrs.accent === 'true'
+
+      if (isAccent && m.length >= 2) {
+        // For accent: base is first child, accent symbol is second
+        // Use OMML <m:acc> element for proper accent rendering
+        const baseChildren = walkNode(m[0])
+        const accentSym = directText(childrenOf(m[1]))
+
+        // Use MathAccent for proper OMML accent rendering
+        return [new MathAccent(accentSym, baseChildren) as unknown as MathComponent]
+      }
+
+      // Default handling for non-accent mover/munder/munderover
       const op = textFrom(childrenOf(findFirst(m, 'mo') || {}))
       const low = tag !== 'mover' ? (m[1] ? walkNode(m[1]) : []) : []
       const up = tag !== 'munder' ? (m[2] ? walkNode(m[2]) : []) : []
